@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C:\Windows\System32\2PACALYPSE 2.3.exe - BEATKOM Matrix Edition</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Matrix Rain Canvas - Naprawione, z fallback na CSS animation jeśli JS fail */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        /* Fallback CSS Matrix-like lines jeśli canvas nie bangla */
+        .matrix-fallback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(90deg, transparent 0%, transparent 1%, rgba(0, 255, 0, 0.03) 1%, rgba(0, 255, 0, 0.03) 2%, transparent 2%);
+            animation: matrix-scroll 20s linear infinite;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        @keyframes matrix-scroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 0; }
+        }
+        /* Glitch Overlay - Fancy Matrix Glitch */
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 2%, rgba(0, 255, 0, 0.03) 2%, rgba(0, 255, 0, 0.03) 3%, transparent 3%);
+            animation: glitch-slide 0.5s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes glitch-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        /* CRT Scanlines - Retro Matrix Feel */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 0, 0.02) 2px, rgba(0, 255, 0, 0.02) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .gui-container {
+            width: 600px; /* Szersze dla więcej opcji */
+            height: 500px; /* Wyższe dla kiczu */
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), inset 0 0 20px rgba(0, 255, 0, 0.1);
+            overflow: hidden;
+            animation: container-glow 3s ease-in-out infinite alternate;
+            z-index: 10;
+            padding: 10px;
+        }
+        @keyframes container-glow {
+            0% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), inset 0 0 20px rgba(0, 255, 0, 0.1); }
+            100% { box-shadow: 0 0 50px rgba(0, 255, 0, 0.8), inset 0 0 30px rgba(0, 255, 0, 0.2); }
+        }
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            text-shadow: 0 0 10px #00ff00;
+            letter-spacing: 1px;
+            animation: text-flicker 2s infinite;
+        }
+        @keyframes text-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; text-shadow: 0 0 10px #00ff00, 0 0 5px #ff0000; }
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            font-style: italic;
+            line-height: 1.2;
+            white-space: pre-wrap;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        .options-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .option-group {
+            background: #111;
+            border: 1px solid #00ff00;
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .option-label {
+            color: #ffffff;
+            text-shadow: 0 0 3px #00ff00;
+            margin-bottom: 3px;
+        }
+        .option-select, .option-slider {
+            background: #333;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: monospace;
+            width: 100%;
+            padding: 2px;
+            outline: none;
+        }
+        .option-select:focus, .option-slider:focus {
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .ip-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .ip-label {
+            color: #ffffff;
+            margin-right: 5px;
+            text-shadow: 0 0 3px #00ff00;
+        }
+        .ip-input {
+            background: #333333;
+            border: 1px solid #00ff00;
+            padding: 4px 8px;
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            min-width: 80px;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            transition: box-shadow 0.3s;
+        }
+        .ip-input:focus {
+            box-shadow: 0 0 15px #00ff00;
+            border-color: #ffff00;
+        }
+        .ddos-container {
+            position: relative;
+            width: 320px;
+            height: 160px;
+            margin: 0 auto 10px;
+        }
+        .ddos-button {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 130px;
+            background: #000000;
+            border: 3px solid #00ff00;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 2;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #00ff00;
+            transition: all 0.3s;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2), 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        .ddos-button:hover, .ddos-button.active {
+            box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.4), 0 0 25px #00ff00;
+            animation: shake 0.5s infinite, button-glow 1s infinite;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(1deg); }
+            75% { transform: translateX(-50%) rotate(-1deg); }
+        }
+        @keyframes button-glow {
+            0%, 100% { border-color: #00ff00; }
+            50% { border-color: #ffff00; }
+        }
+        .tupac-main {
+            position: absolute;
+            top: 10px;
+            right: -50px;
+            width: 140px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 5px;
+            z-index: 1;
+            opacity: 0.95;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            animation: tupac-float 4s ease-in-out infinite;
+        }
+        @keyframes tupac-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .bots-section {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.3;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        .bots-count {
+            font-size: 18px;
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff00;
+            animation: bots-flicker 3s infinite;
+        }
+        @keyframes bots-flicker {
+            0%, 100% { color: #00ff00; }
+            50% { color: #ffff00; }
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #333;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #00ff00, #ffff00);
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .logs {
+            height: 70px;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-size: 11px;
+            overflow-y: auto;
+            padding: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            display: none;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2);
+            animation: logs-glow 2s infinite alternate;
+        }
+        @keyframes logs-glow {
+            0% { box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2); }
+            100% { box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.4); }
+        }
+        .tupac-log-icon {
+            font-size: 12px;
+            margin-right: 5px;
+            color: #ffff00;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="matrix-fallback"></div> <!-- Fallback na CSS jeśli canvas fail -->
+    <div class="glitch-overlay"></div>
+    <div class="gui-container">
+        <div class="title">2PACALYPSE 2.3 -POWERED by BEATKOM</div>
+        <div class="subtitle">rIp 2pac u were the meanin
+of lye -BEATKOM</div>
+        <div class="options-section">
+            <div class="option-group">
+                <div class="option-label">Flood Type</div>
+                <select class="option-select" id="flood-type">
+                    <option>UDP Flood</option>
+                    <option>SYN Flood</option>
+                    <option>HTTP Bomb</option>
+                    <option>ICMP Ping</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <div class="option-label">Bot Intensity</div>
+                <input type="range" class="option-slider" id="bot-intensity" min="10" max="100" value="50">
+                <span id="intensity-value">50</span>%
+            </div>
+        </div>
+        <div class="ip-section">
+            <div>
+                <span class="ip-label">IP:</span>
+                <input type="text" class="ip-input" id="ip-input" value="64.23.175.201">
+            </div>
+            <div>
+                <span class="ip-label">Port:</span>
+                <input type="number" class="ip-input" id="port-input" value="80">
+            </div>
+        </div>
+        <div class="ddos-container">
+            <button class="ddos-button" id="ddos-btn">
+                DDOS NIGGAS
+            </button>
+            <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRbuKq4ympejodZwx2RohHbs8_qOnj9M5XEse2Bq9Ksgd9Mt4ws" alt="Tupac" class="tupac-main" onerror="this.src='https://via.placeholder.com/140x160/000000/00ff00?text=2PAC';">
+        </div>
+        <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="logs" id="logs"></div>
+        <div class="bots-section">
+            BOTS SENT FROM BEATKOM BOTNET V1: <span class="bots-count" id="bots-count">22</span>
+            of lye-BEATKOM
+        </div>
+    </div>
+    <script>
+        // Matrix Rain - Naprawione z error handling
+        let canvas, ctx;
+        try {
+            canvas = document.getElementById('matrix-canvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = Array.from({length: Math.floor(columns)}, () => 1);
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+                drops.forEach((y, i) => {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, y * fontSize);
+                    if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                });
+            }
+            setInterval(drawMatrix, 50);
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        } catch (e) {
+            console.log('Canvas matrix failed, using fallback CSS');
+            document.querySelector('.matrix-fallback').style.display = 'block';
+        }
+
+        let bots = 22;
+        setInterval(() => {
+            bots = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('bots-count').textContent = bots;
+        }, 5000);
+
+        // Slider intensity update
+        document.getElementById('bot-intensity').addEventListener('input', (e) => {
+            document.getElementById('intensity-value').textContent = e.target.value;
+        });
+
+        document.getElementById('ddos-btn').addEventListener('click', () => {
+            const btn = document.getElementById('ddos-btn');
+            const ip = document.getElementById('ip-input').value;
+            const port = document.getElementById('port-input').value;
+            const floodType = document.getElementById('flood-type').value;
+            const intensity = document.getElementById('bot-intensity').value;
+            const progressBar = document.getElementById('progress-bar');
+            const progressFill = document.getElementById('progress-fill');
+            const logs = document.getElementById('logs');
+
+            if (!ip || !port) {
+                alert("Enter IP and Port, don't troll!");
+                return;
+            }
+
+            alert(`DDOS ATTACK INITIATED on ${ip}:${port} with ${floodType} at ${intensity}% intensity! Bots deploying from BEATKOM BOTNET V1... Keep it real! - BEATKOM`);
+
+            btn.classList.add('active');
+            btn.textContent = 'DDOSING NIGGER...';
+            progressBar.style.display = 'block';
+            logs.style.display = 'block';
+
+            let prog = 0;
+            const progInt = setInterval(() => {
+                prog += Math.random() * 20 * (intensity / 100); // Intensity wpływa na speed
+                if (prog > 100) prog = 100;
+                progressFill.style.width = prog + '%';
+                if (prog >= 100) {
+                    clearInterval(progInt);
+                    setTimeout(() => {
+                        alert(`NUKE COMPLETE with ${floodType}! Target flooded by BEATKOM BOTNET V1 at ${intensity}% power. 💀`);
+                        btn.classList.remove('active');
+                        btn.textContent = 'DDOS NIGGAS';
+                        progressBar.style.display = 'none';
+                        logs.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 1000);
+                }
+            }, 300);
+
+            logs.innerHTML = `<span class="tupac-log-icon">2PAC</span>[ATTACK] Connecting to ${ip}:${port}...\n<span class="tupac-log-icon">2PAC</span>[FLOOD TYPE] ${floodType.toUpperCase()} selected...\n<span class="tupac-log-icon">2PAC</span>[INTENSITY] ${intensity}% power from BEATKOM BOTNET V1...\n<span class="tupac-log-icon">2PAC</span>[SUCCESS] Target under attack!`;
+            logs.scrollTop = logs.scrollHeight;
+        });
+    </script>
+</body>
+</html>
